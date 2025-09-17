@@ -77,7 +77,7 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=15)
+    reference_path = record_voice(duration=60)
 
     cleaned_reference_path = "cleaned_reference.wav"
     preprocess_audio(reference_path, cleaned_reference_path)
