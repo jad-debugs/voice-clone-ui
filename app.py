@@ -12,3 +12,10 @@ def process(text: str, ref_audio_path: str) -> str:
     # save their cleaned audio file
     cleaned_path = f"cleaned_{int(time.time())}"
     preprocess_audio(ref_audio_path, cleaned_path)
+
+    try:
+        output_path = clone_voice(text, cleaned_path)
+        return "Voice cloned !!!"
+    except Exception as e:
+        return f"Error! {str(e)}", None
+
