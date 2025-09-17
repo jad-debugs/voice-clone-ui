@@ -6,7 +6,13 @@ from scipy.io.wavfile import write
 from TTS.api import TTS
 import soundfile as sf
 
-def record_voice(filename='my_voice.wav', duration=5, samplerate=16000) -> str:
+def preprocess_audio(input_path, output_path):
+    y, sr = librosa.load(input_path, sr=22050)
+    y, _ = librosa.effects.trim(y, top_db=20)  # trim silence
+    y = librosa.util.normalize(y)              # normalize
+    sf.write(output_path, y, sr)
+
+def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
     print('Recording Started...')
 
     voice_recording = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1)
@@ -24,21 +30,21 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
 
     output_path = os.path.join(output_dir, f"cloned_{uuid.uuid4().hex[:8]}.wav")
 
-    cloned_voice = tts.tts_with_vc(
+    tts.tts_to_file(
         text = text,
         speaker_wav = reference_audio_path,
-        speaker = 'random',
-        language="en"
+        language="en",
+        file_path=output_path,
     )
 
     # saving cloned voice
-    sf.write(output_path, cloned_voice, tts.synthesizer.output_sample_rate)
+    #sf.write(output_path, cloned_voice, tts.synthesizer.output_sample_rate)
     print('saved cloned voice')
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice()
+    reference_path = record_voice(duration=10)
 
-    text_to_speak = "Hello World! This is your cloned voice using pytorch and yourtts"
+    text_to_speak = "Hey my name is jad and right now I am at the lot with diego"
 
     output_path = clone_voice(text_to_speak, reference_path)
