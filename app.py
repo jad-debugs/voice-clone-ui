@@ -15,6 +15,7 @@ torch.serialization.add_safe_globals({
     XttsAudioConfig,
     XttsArgs
 })
+
 from TTS.api import TTS
 import soundfile as sf
 import librosa
@@ -65,11 +66,11 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=10)
+    reference_path = record_voice(duration=20)
 
     cleaned_reference_path = "cleaned_reference.wav"
     preprocess_audio(reference_path, cleaned_reference_path)
 
-    text_to_speak = "Hey ... my name is jad and right now I am at the lot with my friends... we just walked around and we are hanging out and having coffee"
+    text_to_speak = "Hey... whats up its jad, im just hanging out in my room right now testing this voice clone project"
 
     output_path = clone_voice(text_to_speak, cleaned_reference_path)
