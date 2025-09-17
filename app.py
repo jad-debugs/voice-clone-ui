@@ -1,14 +1,32 @@
 import os
 import uuid
-import torch
 import sounddevice as sd
 from scipy.io.wavfile import write
 
-os.environ["COQUI_TOS_AGREED"] = "1"
+import torch
+from TTS.config.shared_configs import BaseDatasetConfig
+from TTS.tts.configs.xtts_config import XttsConfig
+from TTS.tts.models.xtts import XttsAudioConfig
+from TTS.tts.models.xtts import XttsArgs
 
+torch.serialization.add_safe_globals({
+    BaseDatasetConfig,
+    XttsConfig,
+    XttsAudioConfig,
+    XttsArgs
+})
 from TTS.api import TTS
 import soundfile as sf
 import librosa
+
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False, gpu=False)
+
+
+
+# Allowlist required classes
+os.environ["COQUI_TOS_AGREED"] = "1"
+
+
 
 def preprocess_audio(input_path, output_path):
     y, sr = librosa.load(input_path, sr=22050)
@@ -27,7 +45,6 @@ def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
 
 def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs") -> str:
     # initilizing model tts
-    tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=True)
 
     # make directory which will save cloned voice
     os.makedirs(output_dir, exist_ok=True)
@@ -48,7 +65,7 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=5)
+    reference_path = record_voice(duration=10)
 
     cleaned_reference_path = "cleaned_reference.wav"
     preprocess_audio(reference_path, cleaned_reference_path)
