@@ -2,6 +2,7 @@ import os
 import uuid
 import sounddevice as sd
 from scipy.io.wavfile import write
+import noisereduce as nr
 
 import torch
 from TTS.config.shared_configs import BaseDatasetConfig
@@ -33,9 +34,13 @@ os.environ["COQUI_TOS_AGREED"] = "1"
 
 def preprocess_audio(input_path, output_path):
     y, sr = librosa.load(input_path, sr=22050)
-    y, _ = librosa.effects.trim(y, top_db=20)  # trim silence
-    y = librosa.util.normalize(y)              # normalize
-    sf.write(output_path, y, sr)
+    y, _ = librosa.effects.trim(y, top_db=20)
+    y = librosa.util.normalize(y)
+
+    # Apply noise reduction
+    y_denoised = nr.reduce_noise(y=y, sr=sr)
+
+    sf.write(output_path, y_denoised, sr)
 
 def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
     print('Recording Started...')
@@ -72,7 +77,7 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=10)
+    reference_path = record_voice(duration=20)
 
     cleaned_reference_path = "cleaned_reference.wav"
     preprocess_audio(reference_path, cleaned_reference_path)
