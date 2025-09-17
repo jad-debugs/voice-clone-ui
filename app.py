@@ -3,8 +3,12 @@ import uuid
 import torch
 import sounddevice as sd
 from scipy.io.wavfile import write
+
+os.environ["COQUI_TOS_AGREED"] = "1"
+
 from TTS.api import TTS
 import soundfile as sf
+import librosa
 
 def preprocess_audio(input_path, output_path):
     y, sr = librosa.load(input_path, sr=22050)
@@ -23,17 +27,18 @@ def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
 
 def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs") -> str:
     # initilizing model tts
-    tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=True)
+    tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=True)
 
     # make directory which will save cloned voice
     os.makedirs(output_dir, exist_ok=True)
 
-    output_path = os.path.join(output_dir, f"cloned_{uuid.uuid4().hex[:8]}.wav")
+    # f"cloned_{uuid.uuid4().hex[:8]}.wav" 
+    output_path = os.path.join(output_dir, "cloned_voice.wav")
 
     tts.tts_to_file(
         text = text,
         speaker_wav = reference_audio_path,
-        language="en",
+        language='en',
         file_path=output_path,
     )
 
@@ -43,8 +48,11 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=10)
+    reference_path = record_voice(duration=5)
 
-    text_to_speak = "Hey my name is jad and right now I am at the lot with diego"
+    cleaned_reference_path = "cleaned_reference.wav"
+    preprocess_audio(reference_path, cleaned_reference_path)
 
-    output_path = clone_voice(text_to_speak, reference_path)
+    text_to_speak = "Hey ... my name is jad and right now I am at the lot with my friends... we just walked around and we are hanging out and having coffee"
+
+    output_path = clone_voice(text_to_speak, cleaned_reference_path)
