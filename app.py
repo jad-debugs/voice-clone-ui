@@ -20,12 +20,11 @@ from TTS.api import TTS
 import soundfile as sf
 import librosa
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False)
-if torch.cuda.is_available():
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
-tts.to(device)
+# tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False)
+
+# tts.to(device)
 
 # Allowlist required classes
 os.environ["COQUI_TOS_AGREED"] = "1"
@@ -49,14 +48,16 @@ def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
 
 def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs") -> str:
     # initilizing model tts
+    from TTS.api import TTS  # Re-import to force reload (optional but safe)
 
+    # Re-initialize TTS model (ensures clean session)
+    tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False)
+    tts.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     # make directory which will save cloned voice
     os.makedirs(output_dir, exist_ok=True)
 
     # f"cloned_{uuid.uuid4().hex[:8]}.wav" 
     output_path = os.path.join(output_dir, "cloned_voice.wav")
-
-    tts.speaker_manager.reset()
 
     tts.tts_to_file(
         text = text,
@@ -71,12 +72,11 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    # reference_path = record_voice(duration=60)
+    reference_path = record_voice(duration=10)
 
-    # cleaned_reference_path = "cleaned_reference.wav"
-    # preprocess_audio(reference_path, cleaned_reference_path)
+    cleaned_reference_path = "cleaned_reference.wav"
+    preprocess_audio(reference_path, cleaned_reference_path)
 
     text_to_speak = "Hey, this is Jad—I'm just testing out this voice clone project to see how real it sounds."
-    cleaned_reference_path = 'cleaned_reference.wav'
 
     output_path = clone_voice(text_to_speak, cleaned_reference_path)
