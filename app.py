@@ -20,9 +20,12 @@ from TTS.api import TTS
 import soundfile as sf
 import librosa
 
-tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False, gpu=False)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False)
+if torch.cuda.is_available():
+    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+tts.to(device)
 
 # Allowlist required classes
 os.environ["COQUI_TOS_AGREED"] = "1"
@@ -53,6 +56,8 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     # f"cloned_{uuid.uuid4().hex[:8]}.wav" 
     output_path = os.path.join(output_dir, "cloned_voice.wav")
 
+    tts.speaker_manager.reset()
+
     tts.tts_to_file(
         text = text,
         speaker_wav = reference_audio_path,
@@ -66,11 +71,12 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
     return output_path
 
 if __name__ == "__main__":
-    reference_path = record_voice(duration=20)
+    # reference_path = record_voice(duration=60)
 
-    cleaned_reference_path = "cleaned_reference.wav"
-    preprocess_audio(reference_path, cleaned_reference_path)
+    # cleaned_reference_path = "cleaned_reference.wav"
+    # preprocess_audio(reference_path, cleaned_reference_path)
 
-    text_to_speak = "Hey... whats up its jad, im just hanging out in my room right now testing this voice clone project"
+    text_to_speak = "Hey, this is Jad—I'm just testing out this voice clone project to see how real it sounds."
+    cleaned_reference_path = 'cleaned_reference.wav'
 
     output_path = clone_voice(text_to_speak, cleaned_reference_path)
