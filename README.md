@@ -1,3 +1,5 @@
+<img width="1276" height="795" alt="image" src="https://github.com/user-attachments/assets/6ea5dcf5-1d56-47c4-94d6-64db43088802" />
+
 # 🎤 XTTS Voice Cloner (Gradio + PyTorch)
 
 Clone any voice using multiple reference samples and synthesize speech with [XTTS](https://github.com/coqui-ai/TTS), all through an intuitive Gradio UI built on top of PyTorch.
