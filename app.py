@@ -3,18 +3,23 @@ from core import preprocess_audio, clone_voice
 import os
 import time
 
-def process(text: str, ref_audio_path: str) -> str:
+os.makedirs("recordings", exist_ok=True)
+
+def process(text: str, ref_audio_path: str, language:str) -> str:
     if not text.strip():
         return "Error! Enter some text!"
     if not ref_audio_path:
         return "Error! Upload some audio!"
 
+    status = "Preprocessing audio..."
+
     # save their cleaned audio file
-    cleaned_path = f"cleaned_{int(time.time())}.wav"
+    cleaned_path = f"recordings/cleaned_{int(time.time())}.wav"
     preprocess_audio(ref_audio_path, cleaned_path)
 
     try:
-        output_path = clone_voice(text, cleaned_path)
+        status = "Cloning voice using XTTS (this may take up to 60s)..."
+        output_path = clone_voice(text, cleaned_path, lang=language)
         return "Voice cloned !!!", output_path
     except Exception as e:
         return f"Error! {str(e)}", None
@@ -22,21 +27,34 @@ def process(text: str, ref_audio_path: str) -> str:
 demo = gr.Interface(
     fn=process,
     inputs=[
-        gr.Textbox(label="Text", placeholder="Enter text to synthesize...", lines=2),
-        gr.Audio(label="Reference Audio", type="filepath")
+        gr.Textbox(
+            label="Text", 
+            placeholder="Enter text to synthesize...", 
+            lines=2
+        ),
+        gr.Audio(
+            label="Reference Audio (Min 15s Recommended",
+            type="filepath",
+        ),
+        gr.Dropdown(
+            label="Language",
+            choices=["en", "es", "fr", "de", "it", "ar", "zh-cn"],
+            value="en",
+            interactive=True,
+            info="Select the language of the voice you're cloning."
+        )
     ],
     outputs=[
         gr.Textbox(label="Status"),
         gr.Audio(label="Cloned Voice Output")
     ],
-    title="XTTS Voice Cloner",
-    description="Clone any voice using XTTS! Upload or record a reference sample and enter text."
+    title="Voice Cloner",
+    description=("Clone any voice using [XTTS](https://github.com/coqui-ai/TTS) powered by PyTorch!\n"
+        "➤ Upload or record a sample of the voice (at least 15 seconds recommended).\n"
+        "➤ Type the message you want it to say.\n"
+        "➤ Hit **Clone Voice** and wait ~30s for magic to happen!"
+    ),
 )
-
-# add notes for whats going in since model will take long on gpu
-# tell user to record for at least 15 seconds
-# add folder for saved recordings
-# make ui look nicer
 
 if __name__ == "__main__":
     demo.launch()
