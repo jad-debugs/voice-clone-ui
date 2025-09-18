@@ -23,8 +23,8 @@ Clone any voice using multiple reference samples and synthesize speech with [XTT
 ### 📁 Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/xtts-voice-cloner.git
-cd xtts-voice-cloner
+git clone https://github.com/jad-debugs/voice-clone-ui.git
+cd voice-clone-ui
 ```
 ### Virtual Environment
 ``` bash
