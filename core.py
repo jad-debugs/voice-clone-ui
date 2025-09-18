@@ -51,7 +51,7 @@ def record_voice(filename='my_voice.wav', duration=5, samplerate=22050) -> str:
     print(f'Saved voice recording as {filename}')
     return filename
 
-def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs", lang='en') -> str:
+def clone_voice(text: str, reference_audio_paths: list, output_dir="cloned_outputs", lang='en') -> str:
     # initilizing model tts
     from TTS.api import TTS  # Re-import to force reload (optional but safe)
 
@@ -66,7 +66,7 @@ def clone_voice(text: str, reference_audio_path: str, output_dir="cloned_outputs
 
     tts.tts_to_file(
         text = text,
-        speaker_wav = reference_audio_path,
+        speaker_wav = reference_audio_paths,
         language=lang,
         file_path=output_path,
     )

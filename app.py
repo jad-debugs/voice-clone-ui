@@ -5,22 +5,26 @@ import time
 
 os.makedirs("recordings", exist_ok=True)
 
-def process(text: str, ref_audio_path: str, language:str) -> str:
+def process(text: str, ref_audio_paths: list, language:str) -> str:
     if not text.strip():
         return "Error! Enter some text!"
-    if not ref_audio_path:
+    if not ref_audio_paths:
         return "Error! Upload some audio!"
 
     status = "Preprocessing audio..."
 
-    # save their cleaned audio file
-    cleaned_path = f"recordings/cleaned_{int(time.time())}.wav"
-    preprocess_audio(ref_audio_path, cleaned_path)
+    # save their cleaned audio files
+    cleaned_paths = []
+    for path in ref_audio_paths:
+        cleaned_path = f"recordings/cleaned_{int(time.time())}.wav"
+        preprocess_audio(path, cleaned_path)
+        cleaned_paths.append(cleaned_path)
+
 
     try:
         status = "Cloning voice using XTTS (this may take up to 60s)..."
         output_path = clone_voice(text, cleaned_path, lang=language)
-        return "Voice cloned !!!", output_path
+        return "Voice cloned !", output_path
     except Exception as e:
         return f"Error! {str(e)}", None
 
@@ -32,9 +36,10 @@ demo = gr.Interface(
             placeholder="Enter text to synthesize...", 
             lines=2
         ),
-        gr.Audio(
-            label="Reference Audio (Min 15s Recommended",
-            type="filepath",
+        gr.File(
+            file_types=[".wav", ".mp3", ".m4a"],
+            label="Upload Reference Audio Samples (Multiple Supported)",
+            file_count="multiple"
         ),
         gr.Dropdown(
             label="Language",
@@ -57,4 +62,4 @@ demo = gr.Interface(
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
