@@ -36,10 +36,23 @@ demo = gr.Interface(
             placeholder="Enter text to synthesize...", 
             lines=2
         ),
+        gr.Radio(
+            choices=["Upload", "Record"],
+            value="Upload",
+            label="Input Mode"
+        ),
         gr.File(
             file_types=[".wav", ".mp3", ".m4a"],
             label="Upload Reference Audio Samples (Multiple Supported)",
-            file_count="multiple"
+            file_count="multiple",
+            visible=True,
+            elem_id="upload_input"
+        ),
+        gr.Audio(
+            label="Record Reference Audio (15s+ recommended)",
+            type="filepath",
+            visible=False,
+            elem_id="record_input"
         ),
         gr.Dropdown(
             label="Language",
